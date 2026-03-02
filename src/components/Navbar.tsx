@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { ShoppingCart, User, Menu, X, Coffee, Music, Users } from "lucide-react";
+import { ShoppingCart, User, Menu, X, Coffee, Music, Users, LogIn, LogOut } from "lucide-react";
 import { useState } from "react";
+import { useSession, signIn, signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/hooks/useCart";
 
@@ -20,6 +21,7 @@ export default function Navbar() {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
     const { items } = useCart();
+    const { data: session, status } = useSession();
     const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
     return (
@@ -67,12 +69,33 @@ export default function Navbar() {
 
                 {/* Actions */}
                 <div className="flex items-center gap-2">
-                    <Link
-                        href="/profile"
-                        className="p-2.5 rounded-xl glass hover:bg-white/10 transition-colors text-white"
-                    >
-                        <User size={20} />
-                    </Link>
+                    {session?.user ? (
+                        <>
+                            <Link
+                                href="/profile"
+                                className="p-2.5 rounded-xl glass hover:bg-white/10 transition-colors text-white flex items-center gap-2"
+                            >
+                                {session.user.image ? (
+                                    <img src={session.user.image} alt="" className="w-6 h-6 rounded-full" />
+                                ) : (
+                                    <User size={20} />
+                                )}
+                            </Link>
+                            <button
+                                onClick={() => signOut()}
+                                className="p-2.5 rounded-xl glass hover:bg-white/10 transition-colors text-white/60 hover:text-white"
+                            >
+                                <LogOut size={18} />
+                            </button>
+                        </>
+                    ) : (
+                        <button
+                            onClick={() => signIn("google")}
+                            className="px-4 py-2 rounded-xl glass hover:bg-white/10 transition-colors text-white flex items-center gap-2 text-sm font-bold"
+                        >
+                            <LogIn size={16} /> Sign In
+                        </button>
+                    )}
                     <Link
                         href="/cart"
                         className="p-2.5 rounded-xl glass hover:bg-white/10 transition-colors text-white relative"

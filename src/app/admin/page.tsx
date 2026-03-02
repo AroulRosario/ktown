@@ -1,27 +1,65 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { LayoutDashboard, ShoppingBag, Users, Calendar, BarChart3, Edit, Trash2, ArrowUpRight, Check } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, Users, Calendar, BarChart3, Edit, Check, LogIn, RefreshCw, Trash2 } from "lucide-react";
+import { useSession, signIn } from "next-auth/react";
 import GlassCard from "@/components/GlassCard";
 import NeonButton from "@/components/NeonButton";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-const stats = [
-    { label: "Daily Revenue", value: "$4,285", growth: "+12.5%", icon: BarChart3 },
-    { label: "Active Orders", value: "18", growth: "+4", icon: ShoppingBag },
-    { label: "New Users", value: "124", growth: "+18%", icon: Users },
-    { label: "Bookings Today", value: "9", growth: "Max Capacity", icon: Calendar },
-];
-
-const mockOrders = [
-    { id: "ORD-9921", user: "Ji-Woo Kim", item: "Neon Fried Chicken", status: "Out for Delivery", time: "25m ago" },
-    { id: "ORD-9922", user: "Mark Thompson", item: "Bibimbap Bowl", status: "Cooking", time: "10m ago" },
-    { id: "ORD-9923", user: "Sara Lee", item: "Kimchi Jigae", status: "Cooking", time: "5m ago" },
-];
-
 export default function AdminDashboard() {
+    const { data: session, status: authStatus } = useSession();
+    const [data, setData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("overview");
+
+    const fetchData = () => {
+        setLoading(true);
+        fetch("/api/admin/stats").then(r => r.json()).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
+    };
+
+    useEffect(() => { if (session?.user) fetchData(); }, [session]);
+
+    const updateOrderStatus = async (id: string, status: string) => {
+        await fetch(`/api/orders/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) });
+        fetchData();
+    };
+
+    if (authStatus === "loading" || loading) {
+        return <div className="flex items-center justify-center min-h-[60vh]"><div className="w-8 h-8 border-2 border-brand-purple border-t-transparent rounded-full animate-spin" /></div>;
+    }
+
+    if (!session?.user) {
+        return (
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <GlassCard className="p-12 text-center max-w-md">
+                    <LogIn size={48} className="text-white/10 mx-auto mb-6" />
+                    <h2 className="text-2xl font-black mb-2">Admin Access Required</h2>
+                    <p className="text-white/40 mb-8">Sign in with an admin account to continue.</p>
+                    <NeonButton onClick={() => signIn("google")} className="w-full h-14">Sign In</NeonButton>
+                </GlassCard>
+            </div>
+        );
+    }
+
+    if (data?.error) {
+        return (
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <GlassCard className="p-12 text-center max-w-md">
+                    <h2 className="text-2xl font-black mb-2 text-red-400">Access Denied</h2>
+                    <p className="text-white/40">You need ADMIN privileges to view this page.</p>
+                </GlassCard>
+            </div>
+        );
+    }
+
+    const stats = [
+        { label: "Total Revenue", value: `$${(data?.revenue || 0).toFixed(2)}`, icon: BarChart3 },
+        { label: "Active Orders", value: data?.activeOrders?.length || 0, icon: ShoppingBag },
+        { label: "Total Users", value: data?.users?.length || 0, icon: Users },
+        { label: "Karaoke Bookings", value: data?.bookings?.length || 0, icon: Calendar },
+    ];
 
     return (
         <div className="max-w-7xl mx-auto px-6 py-12">
@@ -32,113 +70,94 @@ export default function AdminDashboard() {
                     </div>
                     <h1 className="text-5xl font-black tracking-tight italic">ADMIN <span className="text-purple-500">DASHBOARD</span></h1>
                 </div>
-
-                <div className="flex gap-4">
-                    <NeonButton variant="outline" size="sm">Export Data</NeonButton>
-                    <NeonButton size="sm">New Product</NeonButton>
-                </div>
+                <NeonButton onClick={fetchData} size="sm"><RefreshCw size={16} /> Refresh</NeonButton>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                {/* Navigation Sidebar */}
-                <div className="space-y-2">
-                    {[
-                        { id: "overview", label: "Overview", icon: LayoutDashboard },
-                        { id: "orders", label: "Manage Orders", icon: ShoppingBag },
-                        { id: "products", label: "Menu & Shop", icon: BarChart3 },
-                        { id: "users", label: "Users & Rep", icon: Users },
-                        { id: "bookings", label: "Karaoke Slots", icon: Calendar },
-                    ].map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={cn(
-                                "w-full flex items-center gap-3 px-4 py-4 rounded-xl text-sm font-bold transition-all",
-                                activeTab === tab.id ? "bg-brand-purple text-white shadow-lg shadow-purple-500/20" : "text-white/40 hover:bg-white/5"
-                            )}
-                        >
-                            <tab.icon size={18} /> {tab.label}
-                        </button>
-                    ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                {stats.map((s, i) => (
+                    <GlassCard key={i} className="p-6">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="p-3 rounded-xl glass text-purple-400"><s.icon size={20} /></div>
+                        </div>
+                        <h4 className="text-3xl font-black italic">{s.value}</h4>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mt-1">{s.label}</p>
+                    </GlassCard>
+                ))}
+            </div>
+
+            {/* Orders Table */}
+            <div className="space-y-6 mb-12">
+                <h3 className="text-xl font-black italic uppercase">ALL <span className="text-purple-500">ORDERS</span></h3>
+                <GlassCard className="p-0 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-white/5 border-b border-white/10 uppercase text-[10px] font-black tracking-widest text-white/40">
+                                <tr><th className="px-6 py-4">ID</th><th className="px-6 py-4">User</th><th className="px-6 py-4">Amount</th><th className="px-6 py-4">Status</th><th className="px-6 py-4 text-right">Actions</th></tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5 text-sm">
+                                {(data?.orders || []).map((o: any) => (
+                                    <tr key={o.id} className="hover:bg-white/5 transition-colors">
+                                        <td className="px-6 py-4 font-mono text-xs text-white/50">{o.id.slice(0, 8)}</td>
+                                        <td className="px-6 py-4 font-bold">{o.user?.name || o.user?.email || "—"}</td>
+                                        <td className="px-6 py-4 text-brand-purple font-black">${o.totalAmount}</td>
+                                        <td className="px-6 py-4"><span className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase",
+                                            o.status === "COOKING" ? "bg-orange-500/10 text-orange-400" :
+                                                o.status === "OUT_FOR_DELIVERY" ? "bg-blue-500/10 text-blue-400" :
+                                                    o.status === "ARRIVED" ? "bg-green-500/10 text-green-400" : "bg-white/5 text-white/40"
+                                        )}>{o.status}</span></td>
+                                        <td className="px-6 py-4 text-right space-x-1">
+                                            {o.status === "PENDING" && <button onClick={() => updateOrderStatus(o.id, "COOKING")} className="p-2 rounded-lg glass text-orange-400 hover:bg-orange-500/10 text-xs font-bold">Cook</button>}
+                                            {o.status === "COOKING" && <button onClick={() => updateOrderStatus(o.id, "OUT_FOR_DELIVERY")} className="p-2 rounded-lg glass text-blue-400 hover:bg-blue-500/10 text-xs font-bold">Deliver</button>}
+                                            {o.status === "OUT_FOR_DELIVERY" && <button onClick={() => updateOrderStatus(o.id, "ARRIVED")} className="p-2 rounded-lg glass text-green-400 hover:bg-green-500/10 text-xs font-bold">Arrived</button>}
+                                        </td>
+                                    </tr>
+                                ))}
+                                {(!data?.orders || data.orders.length === 0) && (
+                                    <tr><td colSpan={5} className="px-6 py-12 text-center text-white/20 font-bold">No orders yet</td></tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </GlassCard>
+            </div>
+
+            {/* Food Items / Products Inventory */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                    <h3 className="text-xl font-black italic uppercase">FOOD <span className="text-purple-500">INVENTORY</span></h3>
+                    <GlassCard className="p-0 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-white/5 border-b border-white/10 uppercase text-[10px] font-black tracking-widest text-white/40">
+                                    <tr><th className="px-4 py-3">Name</th><th className="px-4 py-3">Price</th><th className="px-4 py-3">Stock</th><th className="px-4 py-3">Active</th></tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5 text-sm">
+                                    {(data?.foodItems || []).map((f: any) => (
+                                        <tr key={f.id} className="hover:bg-white/5"><td className="px-4 py-3 font-bold">{f.name}</td><td className="px-4 py-3 text-brand-purple">${f.price}</td><td className="px-4 py-3">{f.stock}</td><td className="px-4 py-3">{f.active ? "✓" : "✗"}</td></tr>
+                                    ))}
+                                    {(!data?.foodItems || data.foodItems.length === 0) && <tr><td colSpan={4} className="px-4 py-8 text-center text-white/20">No food items</td></tr>}
+                                </tbody>
+                            </table>
+                        </div>
+                    </GlassCard>
                 </div>
-
-                {/* Main Panel */}
-                <div className="lg:col-span-3 space-y-12">
-                    {/* Stats Summary */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {stats.map((stat, idx) => (
-                            <GlassCard key={idx} className="p-6">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="p-3 rounded-xl glass border-white/5 text-purple-400">
-                                        <stat.icon size={20} />
-                                    </div>
-                                    <span className={cn(
-                                        "text-[10px] font-black px-2 py-1 rounded-md glass",
-                                        stat.growth.startsWith("+") ? "text-green-400" : "text-purple-300"
-                                    )}>{stat.growth}</span>
-                                </div>
-                                <h4 className="text-3xl font-black italic">{stat.value}</h4>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mt-1">{stat.label}</p>
-                            </GlassCard>
-                        ))}
-                    </div>
-
-                    {/* Tables / Management */}
-                    <div className="space-y-6">
-                        <div className="flex items-center justify-between px-2">
-                            <h3 className="text-xl font-black italic uppercase tracking-tight">ACTIVE <span className="text-purple-500">ORDERS</span></h3>
+                <div className="space-y-6">
+                    <h3 className="text-xl font-black italic uppercase">MERCH <span className="text-purple-500">INVENTORY</span></h3>
+                    <GlassCard className="p-0 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-white/5 border-b border-white/10 uppercase text-[10px] font-black tracking-widest text-white/40">
+                                    <tr><th className="px-4 py-3">Name</th><th className="px-4 py-3">Price</th><th className="px-4 py-3">Stock</th><th className="px-4 py-3">Active</th></tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5 text-sm">
+                                    {(data?.products || []).map((p: any) => (
+                                        <tr key={p.id} className="hover:bg-white/5"><td className="px-4 py-3 font-bold">{p.name}</td><td className="px-4 py-3 text-brand-purple">${p.price}</td><td className="px-4 py-3">{p.stock}</td><td className="px-4 py-3">{p.active ? "✓" : "✗"}</td></tr>
+                                    ))}
+                                    {(!data?.products || data.products.length === 0) && <tr><td colSpan={4} className="px-4 py-8 text-center text-white/20">No products</td></tr>}
+                                </tbody>
+                            </table>
                         </div>
-
-                        <GlassCard className="p-0 overflow-hidden">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead className="bg-white/5 border-b border-white/10 uppercase text-[10px] font-black tracking-widest text-white/40">
-                                        <tr>
-                                            <th className="px-6 py-4">ID</th>
-                                            <th className="px-6 py-4">User</th>
-                                            <th className="px-6 py-4">Item</th>
-                                            <th className="px-6 py-4">Status</th>
-                                            <th className="px-6 py-4 text-right">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-white/5 text-sm">
-                                        {mockOrders.map((order) => (
-                                            <tr key={order.id} className="hover:bg-white/5 transition-colors group">
-                                                <td className="px-6 py-4 font-mono text-xs text-white/50">{order.id}</td>
-                                                <td className="px-6 py-4 font-bold">{order.user}</td>
-                                                <td className="px-6 py-4 text-white/70 italic">"{order.item}"</td>
-                                                <td className="px-6 py-4">
-                                                    <span className={cn(
-                                                        "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter",
-                                                        order.status === "Cooking" ? "bg-orange-500/10 text-orange-400" : "bg-brand-purple/10 text-brand-purple"
-                                                    )}>
-                                                        {order.status}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4 text-right space-x-2">
-                                                    <button className="p-2 rounded-lg glass text-white/20 hover:text-green-400 transition-colors"><Check size={16} /></button>
-                                                    <button className="p-2 rounded-lg glass text-white/20 hover:text-purple-400 transition-colors"><Edit size={16} /></button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </GlassCard>
-                    </div>
-
-                    {/* Section for Menu Management */}
-                    <div className="space-y-6">
-                        <div className="flex items-center justify-between px-2">
-                            <h3 className="text-xl font-black italic uppercase tracking-tight">PLATFORM <span className="text-purple-500">ANALYTICS</span></h3>
-                        </div>
-                        <GlassCard className="h-48 flex items-center justify-center border-dashed border-white/10 opacity-60">
-                            <div className="text-center">
-                                <BarChart3 size={32} className="mx-auto mb-4 text-white/20" />
-                                <p className="text-[10px] font-black uppercase tracking-widest text-white/20">Chart Integration Coming Soon</p>
-                            </div>
-                        </GlassCard>
-                    </div>
+                    </GlassCard>
                 </div>
             </div>
         </div>
