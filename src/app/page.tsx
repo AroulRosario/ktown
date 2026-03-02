@@ -1,11 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Search, ArrowRight, Utensils, ShoppingBag, Mic2, Users } from "lucide-react";
+import { Search, ArrowRight, Utensils, ShoppingBag, Mic2, Users, Play, TrendingUp } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
 import GlassCard from "@/components/GlassCard";
 import Link from "next/link";
 import NewsFeed from "@/components/NewsFeed";
+import Stories from "@/components/Stories";
 
 const featuredItems = [
   {
@@ -26,7 +27,7 @@ const featuredItems = [
   },
   {
     title: "Noraebang Booking",
-    desc: "Private karaoke rooms with premium sound & neon vibes.",
+    desc: "Private karaoke rooms with premium sound & neon vibes at ₹1000/hr.",
     icon: Mic2,
     href: "/karaoke",
     image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=800",
@@ -70,7 +71,7 @@ export default function Home() {
             Vibe with the Soul of Seoul
           </div>
 
-          <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none italic">
+          <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none italic uppercase">
             WELCOME TO <br />
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand-purple via-white to-brand-violet text-glow">
               K-TOWN
@@ -100,14 +101,17 @@ export default function Home() {
         </motion.div>
       </section>
 
+      {/* Stories Section */}
+      <Stories />
+
       {/* Featured Grid */}
       <section className="max-w-7xl mx-auto w-full space-y-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h2 className="text-4xl font-black tracking-tight mb-2">FEATURED SECTIONS</h2>
+            <h2 className="text-4xl font-black tracking-tight mb-2 uppercase italic">FEATURED <span className="text-purple-500">SECTIONS</span></h2>
             <p className="text-white/40">Everything you need to immerse yourself in the culture.</p>
           </div>
-          <Link href="/explore" className="text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-2 font-bold mb-1">
+          <Link href="/explore" className="text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-2 font-black uppercase text-xs tracking-widest mb-1">
             View All <ArrowRight size={16} />
           </Link>
         </div>
@@ -117,7 +121,7 @@ export default function Home() {
             <Link key={item.title} href={item.href}>
               <GlassCard
                 delay={idx * 0.1}
-                className="h-[400px] flex flex-col p-4 group overflow-hidden relative"
+                className="h-[400px] flex flex-col p-4 group overflow-hidden relative border-white/5 hover:border-brand-purple/30"
               >
                 <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
 
@@ -133,11 +137,11 @@ export default function Home() {
                 </div>
 
                 <div className="relative z-10 flex-1 flex flex-col">
-                  <h3 className="text-xl font-bold mb-2 group-hover:text-purple-200 transition-colors">{item.title}</h3>
+                  <h3 className="text-xl font-bold mb-2 group-hover:text-purple-200 transition-colors uppercase italic">{item.title}</h3>
                   <p className="text-white/50 text-sm leading-relaxed mb-6 flex-1">
                     {item.desc}
                   </p>
-                  <div className="flex items-center gap-2 text-sm font-bold text-white group-hover:translate-x-2 transition-transform">
+                  <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 group-hover:text-white group-hover:translate-x-2 transition-all">
                     Explore Now <ArrowRight size={14} />
                   </div>
                 </div>
@@ -151,11 +155,11 @@ export default function Home() {
       <NewsFeed />
 
       {/* Call to Action Section */}
-      <section className="max-w-7xl mx-auto w-full pb-24">
-        <GlassCard className="p-12 md:p-24 overflow-hidden relative">
+      <section className="max-w-7xl mx-auto w-full pb-24 px-4 overflow-hidden">
+        <GlassCard className="p-12 md:p-24 overflow-hidden relative border-brand-purple/20">
           <div className="absolute top-0 right-0 w-1/2 h-full bg-brand-purple/20 blur-[100px] -z-10" />
           <div className="max-w-2xl space-y-8 relative z-10">
-            <h2 className="text-4xl md:text-6xl font-black tracking-tighter italic">
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter italic uppercase">
               READY TO JOIN THE <br />
               <span className="text-glow text-purple-400">INNER CIRCLE?</span>
             </h2>
@@ -164,7 +168,9 @@ export default function Home() {
               exclusive cafe rewards waiting for you.
             </p>
             <div className="flex flex-wrap gap-4">
-              <NeonButton size="lg">Sign Up Free</NeonButton>
+              <Link href="/auth/signin">
+                <NeonButton size="lg">Sign Up Free</NeonButton>
+              </Link>
               <NeonButton variant="outline" size="lg">Learn Rewards</NeonButton>
             </div>
           </div>
@@ -172,7 +178,7 @@ export default function Home() {
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute -right-20 -bottom-20 w-80 h-80 border border-white/5 rounded-full -z-10 flex items-center justify-center"
+            className="absolute -right-20 -bottom-20 w-80 h-80 border border-white/5 rounded-full -z-10 flex items-center justify-center opacity-40"
           >
             <div className="w-60 h-60 border border-purple-500/10 rounded-full flex items-center justify-center">
               <div className="w-40 h-40 border border-purple-500/20 rounded-full" />

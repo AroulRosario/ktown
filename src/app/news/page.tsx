@@ -8,6 +8,7 @@ import GlassCard from "@/components/GlassCard";
 import NeonButton from "@/components/NeonButton";
 
 interface NewsItem {
+    id: string;
     title: string;
     link: string;
     pubDate: string;
@@ -101,14 +102,12 @@ export default function NewsPage() {
                                     <p className="text-white/40 text-sm mb-8 line-clamp-4 leading-relaxed flex-1">
                                         {item.contentSnippet}
                                     </p>
-                                    <a
-                                        href={item.link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                    <Link
+                                        href={`/news/${item.id}`}
                                         className="inline-flex items-center justify-center gap-3 px-6 py-3 rounded-xl glass border-white/10 text-xs font-black uppercase tracking-[0.2em] group/btn hover:bg-brand-purple hover:border-brand-purple transition-all"
                                     >
-                                        Read Full Article <ExternalLink size={14} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
-                                    </a>
+                                        Read Full Article <ArrowLeft size={14} className="rotate-180 group-hover/btn:translate-x-1 transition-transform" />
+                                    </Link>
                                 </div>
                             </GlassCard>
                         </motion.div>

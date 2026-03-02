@@ -8,6 +8,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 interface NewsItem {
+    id: string;
     title: string;
     link: string;
     pubDate: string;
@@ -103,14 +104,12 @@ export default function NewsFeed() {
                                     <p className="text-white/40 text-sm mb-6 line-clamp-3 leading-relaxed flex-1">
                                         {item.contentSnippet}
                                     </p>
-                                    <a
-                                        href={item.link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                    <Link
+                                        href={`/news/${item.id}`}
                                         className="flex items-center gap-2 text-brand-purple text-xs font-black uppercase tracking-widest hover:text-white transition-colors mt-auto"
                                     >
-                                        Read More <ExternalLink size={14} />
-                                    </a>
+                                        Read More <ArrowLeft size={14} className="rotate-180" />
+                                    </Link>
                                 </div>
                             </GlassCard>
                         </motion.div>

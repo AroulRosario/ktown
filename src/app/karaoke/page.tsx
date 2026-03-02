@@ -1,46 +1,76 @@
 "use client";
 
 import { useState } from "react";
+import { useSession, signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar as CalendarIcon, Clock, Users, Music2, Star, CheckCircle2 } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Users, Music2, Star, CheckCircle2, Loader2 } from "lucide-react";
 import GlassCard from "@/components/GlassCard";
 import NeonButton from "@/components/NeonButton";
 import { cn } from "@/lib/utils";
 import { format, addDays, startOfDay } from "date-fns";
 
 const rooms = [
-    { id: "r1", name: "Neon Seoul", capacity: "2-4", price: 25, image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=800", rating: 4.9 },
-    { id: "r2", name: "Cyberpunk Vibe", capacity: "5-8", price: 45, image: "https://images.unsplash.com/photo-1514525253344-f814d0c9e58a?auto=format&fit=crop&q=80&w=800", rating: 4.8 },
-    { id: "r3", name: "Aesthetic K-Pop", capacity: "8-12", price: 65, image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800", rating: 5.0 },
+    { id: "r1", name: "Neon Seoul (Standard)", capacity: "2-4", price: 1000, image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=800", rating: 4.9 },
+    { id: "r2", name: "Cyberpunk Vibe (Large)", capacity: "5-8", price: 1000, image: "https://images.unsplash.com/photo-1514525253344-f814d0c9e58a?auto=format&fit=crop&q=80&w=800", rating: 4.8 },
+    { id: "r3", name: "Aesthetic K-Pop (VIP)", capacity: "8-12", price: 1000, image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800", rating: 5.0 },
 ];
 
 const timeSlots = ["18:00", "19:00", "20:00", "21:00", "22:00", "23:00", "00:00"];
 
 export default function KaraokePage() {
+    const { data: session } = useSession();
+    const router = useRouter();
     const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
     const [selectedRoom, setSelectedRoom] = useState(rooms[0].id);
     const [selectedTime, setSelectedTime] = useState("");
     const [isBooked, setIsBooked] = useState(false);
+    const [isBooking, setIsBooking] = useState(false);
 
     const dates = Array.from({ length: 7 }, (_, i) => addDays(new Date(), i));
 
-    const handleBook = () => {
+    const handleBook = async () => {
+        if (!session) {
+            router.push("/auth/signin");
+            return;
+        }
         if (!selectedTime) return;
-        setIsBooked(true);
-        setTimeout(() => setIsBooked(false), 3000);
+
+        setIsBooking(true);
+        try {
+            const res = await fetch("/api/karaoke/bookings", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    roomId: selectedRoom,
+                    date: selectedDate,
+                    startTime: selectedTime,
+                    amount: rooms.find(r => r.id === selectedRoom)?.price || 0,
+                }),
+            });
+
+            if (res.ok) {
+                setIsBooked(true);
+                setTimeout(() => setIsBooked(false), 5000);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsBooking(false);
+        }
     };
 
     return (
         <div className="max-w-7xl mx-auto px-6 py-12">
             <div className="max-w-xl mb-16">
-                <h1 className="text-5xl font-black tracking-tight mb-4 italic">BOOK A <span className="text-purple-500">NORAEBANG</span></h1>
-                <p className="text-white/50 text-lg">Private rooms, premium sound, and the latest K-Pop hits. Book your ultimate karaoke night.</p>
+                <h1 className="text-5xl font-black tracking-tight mb-4 italic uppercase">BOOK A <span className="text-purple-500 font-extrabold">NORAEBANG</span></h1>
+                <p className="text-white/50 text-lg">Private rooms, premium sound, and the latest K-Pop hits. Exclusive to K-Town members.</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                 {/* Room Selection */}
                 <div className="lg:col-span-2 space-y-8">
-                    <h2 className="text-2xl font-bold flex items-center gap-2">
+                    <h2 className="text-2xl font-black flex items-center gap-2 uppercase italic">
                         <Music2 className="text-purple-500" /> Choose Your Style
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -63,7 +93,7 @@ export default function KaraokePage() {
                                 <div className="p-6">
                                     <div className="flex justify-between items-center mb-4">
                                         <h3 className="text-xl font-bold">{room.name}</h3>
-                                        <span className="text-brand-purple font-black">${room.price}/hr</span>
+                                        <span className="text-brand-purple font-black">₹{room.price}/hr</span>
                                     </div>
                                     <div className="flex items-center gap-4 text-xs font-bold text-white/40 uppercase tracking-widest">
                                         <div className="flex items-center gap-1.5"><Users size={14} /> {room.capacity} GUESTS</div>
@@ -76,7 +106,7 @@ export default function KaraokePage() {
 
                 {/* Booking Sidebar */}
                 <div className="space-y-8">
-                    <h2 className="text-2xl font-bold flex items-center gap-2">
+                    <h2 className="text-2xl font-black flex items-center gap-2 uppercase italic">
                         <CalendarIcon className="text-purple-500" /> Availability
                     </h2>
                     <GlassCard className="space-y-8 sticky top-32">
@@ -127,8 +157,8 @@ export default function KaraokePage() {
                         <div className="pt-4 border-t border-white/5">
                             <div className="flex justify-between items-center mb-6">
                                 <div className="text-sm">
-                                    <p className="text-white/40">Total Amount</p>
-                                    <p className="text-2xl font-black">${rooms.find(r => r.id === selectedRoom)?.price}</p>
+                                    <p className="text-white/40 uppercase font-black text-[10px] tracking-widest">Total Amount</p>
+                                    <p className="text-2xl font-black italic">₹{rooms.find(r => r.id === selectedRoom)?.price}</p>
                                 </div>
                                 <Clock size={24} className="text-white/20" />
                             </div>
@@ -136,10 +166,11 @@ export default function KaraokePage() {
                             <NeonButton
                                 size="lg"
                                 className="w-full h-14"
-                                disabled={!selectedTime}
+                                disabled={!selectedTime || isBooking}
                                 onClick={handleBook}
                             >
-                                Confirm Booking
+                                {isBooking ? <Loader2 className="animate-spin" /> :
+                                    session ? "Confirm Booking" : "Sign in to Book"}
                             </NeonButton>
                         </div>
                     </GlassCard>
