@@ -43,9 +43,9 @@ export default function ProfilePage() {
     }
 
     const stats = [
-        { label: "Food Orders", value: profile?.stats?.totalOrders ?? 0, icon: ShoppingBag, color: "text-orange-400" },
-        { label: "Karaoke Hours", value: profile?.stats?.karaokeHours ?? 0, icon: Music, color: "text-purple-400" },
-        { label: "Rep Points", value: profile?.stats?.repPoints ?? 0, icon: Star, color: "text-yellow-400" },
+        { label: "Food Orders", value: profile?.stats?.totalOrders ?? 0, icon: ShoppingBag, color: "text-neon-cyan" },
+        { label: "Karaoke Hours", value: profile?.stats?.karaokeHours ?? 0, icon: Music, color: "text-brand-purple" },
+        { label: "Rep Points", value: profile?.stats?.repPoints ?? 0, icon: Star, color: "text-neon-lime" },
     ];
 
     const activeOrders = (profile?.user?.orders || []).filter((o: any) => ["PENDING", "COOKING", "OUT_FOR_DELIVERY"].includes(o.status));
@@ -64,7 +64,7 @@ export default function ProfilePage() {
                         <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-brand-purple/20 to-transparent -z-10" />
                         <div className="relative inline-block mb-6">
                             <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-brand-purple to-brand-violet p-1">
-                                <div className="w-full h-full rounded-[20px] bg-[#0a0118] overflow-hidden flex items-center justify-center border border-white/10">
+                                <div className="w-full h-full rounded-[20px] bg-[#05010d] overflow-hidden flex items-center justify-center border border-white/10">
                                     {session.user.image ? (
                                         <img src={session.user.image} alt="" className="w-full h-full object-cover" />
                                     ) : (
@@ -72,7 +72,7 @@ export default function ProfilePage() {
                                     )}
                                 </div>
                             </div>
-                            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-green-500 border-4 border-[#0a0118]" />
+                            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-brand-purple shadow-[0_0_10px_rgba(94,23,235,0.5)] border-4 border-[#05010d]" />
                         </div>
                         <h2 className="text-2xl font-black italic">{session.user.name || "K-TOWN USER"}</h2>
                         <p className="text-white/40 text-xs font-bold uppercase tracking-widest mt-1">{session.user.email}</p>
@@ -86,7 +86,7 @@ export default function ProfilePage() {
                                 className={cn("w-full flex items-center justify-between px-4 py-4 rounded-xl text-sm font-bold transition-all",
                                     activeTab === tab.id ? "bg-white/10 text-white border border-white/10" : "text-white/40 hover:bg-white/5")}>
                                 <div className="flex items-center gap-3"><tab.icon size={18} /> {tab.label}</div>
-                                {tab.count ? <span className="w-5 h-5 rounded-md bg-brand-purple flex items-center justify-center text-[10px]">{tab.count}</span> : null}
+                                {tab.count ? <span className="w-5 h-5 rounded-md bg-brand-purple flex items-center justify-center text-[10px] font-black">{tab.count}</span> : null}
                             </button>
                         ))}
                     </div>
@@ -107,13 +107,13 @@ export default function ProfilePage() {
                         </div>
                         {activeOrders.length > 0 && (
                             <div className="space-y-6">
-                                <h3 className="text-xl font-black italic uppercase">ACTIVE <span className="text-purple-500">ORDERS</span></h3>
+                                <h3 className="text-xl font-black italic uppercase">ACTIVE <span className="text-brand-purple">ORDERS</span></h3>
                                 {activeOrders.map((order: any) => (
                                     <GlassCard key={order.id} className="p-8">
                                         <div className="flex justify-between mb-8">
                                             <div>
                                                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">ORDER {order.id.slice(0, 8)}</span>
-                                                <h4 className="text-xl font-bold mt-1">${order.totalAmount}</h4>
+                                                <h4 className="text-xl font-bold mt-1">₹{order.totalAmount}</h4>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <div className="w-2 h-2 rounded-full bg-brand-purple animate-pulse" />
