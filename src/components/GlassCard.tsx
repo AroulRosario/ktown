@@ -1,17 +1,16 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { HTMLMotionProps, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 
-interface GlassCardProps {
+interface GlassCardProps extends HTMLMotionProps<"div"> {
     children: ReactNode;
-    className?: string;
     delay?: number;
     hover?: boolean;
 }
 
-export default function GlassCard({ children, className, delay = 0, hover = true }: GlassCardProps) {
+export default function GlassCard({ children, className, delay = 0, hover = true, ...props }: GlassCardProps) {
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -23,6 +22,7 @@ export default function GlassCard({ children, className, delay = 0, hover = true
                 hover && "hover:border-white/20 hover:shadow-purple-500/10",
                 className
             )}
+            {...props}
         >
             {children}
         </motion.div>

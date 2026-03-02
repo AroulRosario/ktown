@@ -1,10 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { HTMLMotionProps, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { ButtonHTMLAttributes, ReactNode } from "react";
+import { ReactNode } from "react";
 
-interface NeonButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface NeonButtonProps extends HTMLMotionProps<"button"> {
     children: ReactNode;
     variant?: "primary" | "outline" | "ghost";
     size?: "sm" | "md" | "lg";
