@@ -5,6 +5,7 @@ import { Search, ArrowRight, Utensils, ShoppingBag, Mic2, Users } from "lucide-r
 import NeonButton from "@/components/NeonButton";
 import GlassCard from "@/components/GlassCard";
 import Link from "next/link";
+import NewsFeed from "@/components/NewsFeed";
 
 const featuredItems = [
   {
@@ -145,6 +146,9 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/* News Feed Section */}
+      <NewsFeed />
 
       {/* Call to Action Section */}
       <section className="max-w-7xl mx-auto w-full pb-24">
