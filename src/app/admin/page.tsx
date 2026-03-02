@@ -6,6 +6,7 @@ import { LayoutDashboard, ShoppingBag, Users, Calendar, BarChart3, Edit, Check, 
 import { useSession, signIn } from "next-auth/react";
 import GlassCard from "@/components/GlassCard";
 import NeonButton from "@/components/NeonButton";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 export default function AdminDashboard() {
@@ -37,7 +38,9 @@ export default function AdminDashboard() {
                     <LogIn size={48} className="text-white/10 mx-auto mb-6" />
                     <h2 className="text-2xl font-black mb-2">Admin Access Required</h2>
                     <p className="text-white/40 mb-8">Sign in with an admin account to continue.</p>
-                    <NeonButton onClick={() => signIn("google")} className="w-full h-14">Sign In</NeonButton>
+                    <Link href="/auth/signin" className="w-full">
+                        <NeonButton className="w-full h-14">Go to Sign In</NeonButton>
+                    </Link>
                 </GlassCard>
             </div>
         );
@@ -55,7 +58,7 @@ export default function AdminDashboard() {
     }
 
     const stats = [
-        { label: "Total Revenue", value: `$${(data?.revenue || 0).toFixed(2)}`, icon: BarChart3 },
+        { label: "Total Revenue", value: `₹${(data?.revenue || 0).toFixed(2)}`, icon: BarChart3 },
         { label: "Active Orders", value: data?.activeOrders?.length || 0, icon: ShoppingBag },
         { label: "Total Users", value: data?.users?.length || 0, icon: Users },
         { label: "Karaoke Bookings", value: data?.bookings?.length || 0, icon: Calendar },
@@ -99,7 +102,7 @@ export default function AdminDashboard() {
                                     <tr key={o.id} className="hover:bg-white/5 transition-colors">
                                         <td className="px-6 py-4 font-mono text-xs text-white/50">{o.id.slice(0, 8)}</td>
                                         <td className="px-6 py-4 font-bold">{o.user?.name || o.user?.email || "—"}</td>
-                                        <td className="px-6 py-4 text-brand-purple font-black">${o.totalAmount}</td>
+                                        <td className="px-6 py-4 text-brand-purple font-black">₹{o.totalAmount}</td>
                                         <td className="px-6 py-4"><span className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase",
                                             o.status === "COOKING" ? "bg-orange-500/10 text-orange-400" :
                                                 o.status === "OUT_FOR_DELIVERY" ? "bg-blue-500/10 text-blue-400" :
@@ -133,7 +136,7 @@ export default function AdminDashboard() {
                                 </thead>
                                 <tbody className="divide-y divide-white/5 text-sm">
                                     {(data?.foodItems || []).map((f: any) => (
-                                        <tr key={f.id} className="hover:bg-white/5"><td className="px-4 py-3 font-bold">{f.name}</td><td className="px-4 py-3 text-brand-purple">${f.price}</td><td className="px-4 py-3">{f.stock}</td><td className="px-4 py-3">{f.active ? "✓" : "✗"}</td></tr>
+                                        <tr key={f.id} className="hover:bg-white/5"><td className="px-4 py-3 font-bold">{f.name}</td><td className="px-4 py-3 text-brand-purple">₹{f.price}</td><td className="px-4 py-3">{f.stock}</td><td className="px-4 py-3">{f.active ? "✓" : "✗"}</td></tr>
                                     ))}
                                     {(!data?.foodItems || data.foodItems.length === 0) && <tr><td colSpan={4} className="px-4 py-8 text-center text-white/20">No food items</td></tr>}
                                 </tbody>
@@ -151,7 +154,7 @@ export default function AdminDashboard() {
                                 </thead>
                                 <tbody className="divide-y divide-white/5 text-sm">
                                     {(data?.products || []).map((p: any) => (
-                                        <tr key={p.id} className="hover:bg-white/5"><td className="px-4 py-3 font-bold">{p.name}</td><td className="px-4 py-3 text-brand-purple">${p.price}</td><td className="px-4 py-3">{p.stock}</td><td className="px-4 py-3">{p.active ? "✓" : "✗"}</td></tr>
+                                        <tr key={p.id} className="hover:bg-white/5"><td className="px-4 py-3 font-bold">{p.name}</td><td className="px-4 py-3 text-brand-purple">₹{p.price}</td><td className="px-4 py-3">{p.stock}</td><td className="px-4 py-3">{p.active ? "✓" : "✗"}</td></tr>
                                     ))}
                                     {(!data?.products || data.products.length === 0) && <tr><td colSpan={4} className="px-4 py-8 text-center text-white/20">No products</td></tr>}
                                 </tbody>

@@ -37,7 +37,7 @@ export default function ShopPage() {
         <div className="max-w-7xl mx-auto px-6 py-12">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
                 <div className="max-w-xl">
-                    <h1 className="text-5xl font-black tracking-tight mb-4 italic">K-MERCH <span className="text-purple-500">SHOP</span></h1>
+                    <h1 className="text-5xl font-black tracking-tight mb-4 italic uppercase">K-MERCH <span className="text-neon-magenta font-extrabold">SHOP</span></h1>
                     <p className="text-white/50 text-lg">Exclusive drops, official albums, and premium K-Town lifestyle essentials.</p>
                 </div>
             </div>

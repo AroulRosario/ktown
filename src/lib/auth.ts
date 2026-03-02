@@ -1,4 +1,4 @@
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, getServerSession } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -13,14 +13,14 @@ export const authOptions: NextAuthOptions = {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
         }),
         CredentialsProvider({
-            name: "Credentials",
+            name: "Email and Password",
             credentials: {
                 email: { label: "Email", type: "email" },
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) {
-                    throw new Error("Missing credentials");
+                    throw new Error("Invalid credentials");
                 }
 
                 const user = await prisma.user.findUnique({
@@ -47,23 +47,16 @@ export const authOptions: NextAuthOptions = {
         }),
     ],
     callbacks: {
-        async session({ session, user, token }: any) {
+        async session({ session, token }: any) {
             if (session.user) {
-                // If user object exists (database strategy)
-                if (user) {
-                    session.user.id = user.id;
-                    session.user.role = user.role;
-                }
-                // If token exists (jwt strategy)
-                else if (token) {
-                    session.user.id = token.sub;
-                    session.user.role = token.role;
-                }
+                session.user.id = token.id;
+                session.user.role = token.role;
             }
             return session;
         },
         async jwt({ token, user }: any) {
             if (user) {
+                token.id = user.id;
                 token.role = user.role;
             }
             return token;
@@ -72,6 +65,7 @@ export const authOptions: NextAuthOptions = {
     session: {
         strategy: "jwt",
     },
+    secret: process.env.NEXTAUTH_SECRET,
     pages: {
         signIn: "/auth/signin",
     },

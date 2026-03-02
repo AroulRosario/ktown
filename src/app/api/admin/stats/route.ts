@@ -1,10 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
 // Admin-only: get full stats + all orders
 export async function GET() {
-    const session = await auth();
+    const session = await getServerSession(authOptions);
     // @ts-ignore
     if (!session?.user || session.user.role !== "ADMIN") {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });

@@ -20,15 +20,20 @@ export async function POST(req: Request) {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Make the first user or specific email an ADMIN
+        const userCount = await prisma.user.count();
+        const role = (userCount === 0 || email === "admin@ktown.com") ? "ADMIN" : "USER";
+
         const user = await prisma.user.create({
             data: {
                 name,
                 email,
                 password: hashedPassword,
+                role: role,
             },
         });
 
-        return NextResponse.json({ message: "User created" }, { status: 201 });
+        return NextResponse.json({ message: "User created", role: user.role }, { status: 201 });
     } catch (error) {
         console.error("Signup error:", error);
         return NextResponse.json({ error: "Signup failed" }, { status: 500 });

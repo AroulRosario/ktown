@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Play, TrendingUp } from "lucide-material-react"; // Note: Using Lucide
-import { Play as PlayIcon } from "lucide-react";
+import { Play as PlayIcon, TrendingUp } from "lucide-react";
 
 const stories = [
     {

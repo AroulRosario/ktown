@@ -43,7 +43,7 @@ export default function FoodPage() {
         <div className="max-w-7xl mx-auto px-6 py-12">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
                 <div className="max-w-xl">
-                    <h1 className="text-5xl font-black tracking-tight mb-4 italic">K-CAFE <span className="text-purple-500">MENU</span></h1>
+                    <h1 className="text-5xl font-black tracking-tight mb-4 italic uppercase">K-CAFE <span className="text-brand-purple font-extrabold">MENU</span></h1>
                     <p className="text-white/50 text-lg">Authentic Korean flavors crafted with premium ingredients and a modern neon twist.</p>
                 </div>
                 <div className="flex gap-2 p-1 rounded-xl glass">

@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -18,9 +20,12 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     try {
-        const { userId, content, image } = await req.json();
-        if (!userId || !content) return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+        const { content, image } = await req.json();
+        const userId = (session.user as any).id;
+        if (!content) return NextResponse.json({ error: "Missing fields" }, { status: 400 });
         const post = await prisma.communityPost.create({
             data: { userId, content, image },
             include: { user: { select: { name: true, image: true, id: true } } },

@@ -67,49 +67,51 @@ export default function Navbar() {
                     })}
                 </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-2">
-                    {session?.user ? (
-                        <>
-                            <Link
-                                href="/profile"
-                                className="p-2.5 rounded-xl glass hover:bg-white/10 transition-colors text-white flex items-center gap-2"
-                            >
-                                {session.user.image ? (
-                                    <img src={session.user.image} alt="" className="w-6 h-6 rounded-full" />
-                                ) : (
-                                    <User size={20} />
-                                )}
-                            </Link>
-                            <button
-                                onClick={() => signOut()}
-                                className="p-2.5 rounded-xl glass hover:bg-white/10 transition-colors text-white/60 hover:text-white"
-                            >
-                                <LogOut size={18} />
-                            </button>
-                        </>
-                    ) : (
-                        <button
-                            onClick={() => signIn("google")}
-                            className="px-4 py-2 rounded-xl glass hover:bg-white/10 transition-colors text-white flex items-center gap-2 text-sm font-bold"
-                        >
-                            <LogIn size={16} /> Sign In
-                        </button>
-                    )}
+                <div className="flex items-center gap-4">
                     <Link
                         href="/cart"
-                        className="p-2.5 rounded-xl glass hover:bg-white/10 transition-colors text-white relative"
+                        className="p-3 rounded-xl glass hover:border-brand-purple/40 hover:shadow-[0_0_20px_rgba(94,23,235,0.2)] transition-all text-white relative group/cart"
                     >
-                        <ShoppingCart size={20} />
+                        <ShoppingCart size={20} className="group-hover/cart:scale-110 transition-transform" />
                         {cartCount > 0 && (
-                            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand-purple flex items-center justify-center text-[10px] font-bold border-2 border-[#0a0118]">
+                            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand-purple flex items-center justify-center text-[10px] font-black border-2 border-[#05010d] animate-pulse">
                                 {cartCount}
                             </span>
                         )}
                     </Link>
+
+                    {session?.user ? (
+                        <div className="flex items-center gap-2">
+                            <Link
+                                href="/profile"
+                                className="p-3 rounded-xl glass border-brand-purple/20 hover:border-brand-purple/40 transition-all text-white flex items-center gap-2 group/profile"
+                            >
+                                {session.user.image ? (
+                                    <img src={session.user.image} alt="" className="w-6 h-6 rounded-full" />
+                                ) : (
+                                    <User size={18} className="text-brand-purple group-hover/profile:scale-110 transition-transform" />
+                                )}
+                                <span className="text-xs font-black uppercase tracking-widest hidden lg:block">Profile</span>
+                            </Link>
+                            <button
+                                onClick={() => signOut()}
+                                className="p-3 rounded-xl glass hover:bg-red-500/10 hover:text-red-400 transition-all text-white/40"
+                            >
+                                <LogOut size={18} />
+                            </button>
+                        </div>
+                    ) : (
+                        <Link
+                            href="/auth/signin"
+                            className="px-6 py-3 rounded-xl bg-brand-purple hover:bg-brand-violet shadow-[0_0_20px_rgba(94,23,235,0.3)] hover:shadow-[0_0_30px_rgba(94,23,235,0.5)] transition-all text-white flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em]"
+                        >
+                            <LogIn size={16} /> Sign In
+                        </Link>
+                    )}
+
                     <button
                         onClick={() => setIsOpen(!isOpen)}
-                        className="md:hidden p-2.5 rounded-xl glass text-white"
+                        className="md:hidden p-3 rounded-xl glass text-white"
                     >
                         {isOpen ? <X size={20} /> : <Menu size={20} />}
                     </button>

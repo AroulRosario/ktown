@@ -186,11 +186,21 @@ export default function SignInPage() {
 
                     <div className="grid grid-cols-1 gap-4">
                         <button
-                            onClick={() => signIn("google", { callbackUrl: "/profile" })}
-                            className="w-full h-14 rounded-2xl glass border-white/5 bg-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-3 font-black uppercase tracking-widest text-xs"
+                            onClick={() => {
+                                setLoading(true);
+                                signIn("google", { callbackUrl: "/profile" });
+                            }}
+                            disabled={loading}
+                            className="w-full h-14 rounded-2xl glass border-white/5 bg-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-3 font-black uppercase tracking-widest text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <Chrome size={18} className="text-purple-400" />
-                            Sign in with Google
+                            {loading ? (
+                                <Loader2 className="animate-spin" size={18} />
+                            ) : (
+                                <>
+                                    <Chrome size={18} className="text-purple-400" />
+                                    Sign in with Google
+                                </>
+                            )}
                         </button>
                     </div>
 
